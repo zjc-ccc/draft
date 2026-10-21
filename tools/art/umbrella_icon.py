@@ -16,7 +16,7 @@ OUT = os.path.join(ROOT, "assets", "props", "umbrella", "preview", "umbrella_ico
 CX = 15.5
 TOP = 4
 RIM = 14.5
-HALF = 13.0
+HALF = 14.0
 SHAFT_BOTTOM = 25
 
 TEAL = [

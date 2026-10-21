@@ -64,7 +64,7 @@ def render(t):
         return (0, 0, 0, 0)
 
     # --- 形状参数：随 t 从收起插值到打开 ---
-    half = 5.0 + 15.0 * t
+    half = 5.0 + 17.0 * t
     rim_y = 28.0 - 7.0 * math.sqrt(t)
     power = 0.98 - 0.33 * math.sqrt(t)
     amp = 1.8 * t ** 0.35
