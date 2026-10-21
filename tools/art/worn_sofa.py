@@ -1,8 +1,10 @@
 """生成 assets/props/worn-sofa/export/worn-sofa_idle_00..07.png
 
-96x56 破旧双人沙发，侧视（坐塾在左、靠背在右、近处一个扶手）：
+96x56 破旧双人沙发，正面平视（能看到横跨整张沙发的靠背）：
+- 靠背一整片横跨沙发，分成左右两块，明显高出座垫
+- 座垫两块并排，中间一道缝；两只扶手在两侧，盖在靠背和座垫前面
 - 深棕布面，暗黄色污渍，边角和缝隙积灰
-- 两个靠枕乱堆在左边，一个斜靠扶手、一个歪在坐塾上
+- 两个靠枕斜靠在靠背上，都堆在左边
 - 8 帧循环：空气里几粒灰尘慢慢飘
 
 用法: python tools/art/worn_sofa.py
@@ -24,17 +26,19 @@ BROWN_MID = (96, 70, 51, 255)
 BROWN_HI = (114, 85, 62, 255)
 BROWN_DARK = (56, 40, 28, 255)
 BROWN_SHADE = (44, 31, 21, 255)
+BACK_FACE = (62, 44, 31, 255)
+SHADOW = (36, 25, 17, 255)
 SEAM = (47, 33, 23, 255)
 OUTLINE = (30, 21, 15, 255)
 
-PILLOW_A = (98, 72, 52, 255)
-PILLOW_A_HI = (124, 94, 70, 255)
-PILLOW_B = (72, 51, 36, 255)
-PILLOW_B_HI = (102, 74, 54, 255)
+PILLOW_A = (112, 84, 62, 255)
+PILLOW_A_HI = (138, 106, 80, 255)
+PILLOW_B = (92, 68, 48, 255)
+PILLOW_B_HI = (118, 90, 66, 255)
 
-STAIN_CORE = (126, 105, 55, 255)
-STAIN_MID = (110, 92, 50, 255)
-STAIN_EDGE = (94, 79, 47, 255)
+STAIN_CORE = (104, 90, 56, 255)
+STAIN_MID = (94, 81, 53, 255)
+STAIN_EDGE = (86, 74, 50, 255)
 
 DUST = (176, 166, 144, 255)
 DUST_DIM = (140, 130, 110, 255)
@@ -42,6 +46,11 @@ DUST_DIM = (140, 130, 110, 255)
 WOOD = (72, 48, 32, 255)
 WOOD_HI = (98, 70, 46, 255)
 WOOD_DARK = (46, 30, 21, 255)
+
+BACK_TOP, BACK_BOTTOM = 6, 29
+SEAT_TOP, SEAT_BOTTOM = 22, 38
+RAIL_TOP, RAIL_BOTTOM = 38, 44
+SEAM_X = 48
 
 canvas = [[(0, 0, 0, 0) for _ in range(W)] for _ in range(H)]
 solid = [[False] * W for _ in range(H)]
@@ -54,7 +63,7 @@ def put(x, y, color):
         canvas[y][x] = color
 
 
-def rrect(x0, y0, x1, y1, radii, color, mark=True):
+def rrect(x0, y0, x1, y1, radii, color):
     rtl, rtr, rbr, rbl = radii
     pts = []
     for y in range(y0, y1 + 1):
@@ -70,65 +79,58 @@ def rrect(x0, y0, x1, y1, radii, color, mark=True):
                 ok = (x - (x0 + rbl)) ** 2 + (y - (y1 - rbl)) ** 2 <= rbl * rbl
             if ok:
                 put(x, y, color)
-                if mark:
-                    solid[y][x] = True
+                solid[y][x] = True
                 pts.append((x, y))
     return pts
-
-
-def band(pts, y0, y1, top=0, bottom=0, top_color=None, bottom_color=None):
-    for x, y in pts:
-        if top_color is not None and y <= y0 + top - 1:
-            canvas[y][x] = top_color
-        elif bottom_color is not None and y >= y1 - bottom + 1:
-            canvas[y][x] = bottom_color
 
 
 def rotated_pillow(cx, cy, hw, hh, r, angle, base, hi, dark):
     ca = math.cos(angle)
     sa = math.sin(angle)
+
+    def inside(x, y, hw2, hh2, r2):
+        lx = (x - cx) * ca + (y - cy) * sa
+        ly = -(x - cx) * sa + (y - cy) * ca
+        if abs(lx) > hw2 or abs(ly) > hh2:
+            return False
+        qx = abs(lx) - (hw2 - r2)
+        qy = abs(ly) - (hh2 - r2)
+        return qx <= 0 or qy <= 0 or qx * qx + qy * qy <= r2 * r2
+
     pts = []
     members = set()
     for y in range(int(cy - hh - hw - 1), int(cy + hh + hw + 2)):
         for x in range(int(cx - hw - hh - 1), int(cx + hw + hh + 2)):
-            lx = (x - cx) * ca + (y - cy) * sa
-            ly = -(x - cx) * sa + (y - cy) * ca
-            if abs(lx) <= hw and abs(ly) <= hh:
-                qx = abs(lx) - (hw - r)
-                qy = abs(ly) - (hh - r)
-                if (qx <= 0 or qy <= 0 or qx * qx + qy * qy <= r * r):
-                    put(x, y, base)
-                    solid[y][x] = True
-                    pts.append((x, y))
-                    members.add((x, y))
+            if inside(x, y, hw, hh, r):
+                put(x, y, base)
+                solid[y][x] = True
+                pts.append((x, y))
+                members.add((x, y))
 
     # 上亮下暗，做出枕头鼓起来的感觉
     for x, y in pts:
-        lx = (x - cx) * ca + (y - cy) * sa
         ly = -(x - cx) * sa + (y - cy) * ca
-        if ly < -hh * 0.28:
+        if ly <= -hh + 2.4:
             canvas[y][x] = hi
-        elif ly > hh * 0.42:
+        elif ly >= hh - 1.8:
             canvas[y][x] = dark
+        else:
+            canvas[y][x] = base
 
-    # 内缝线
+    # 内缝线：沿内缩一圈的连续虚线，做出枕头包边
+    ihw, ihh, ir = hw - 2.2, hh - 2.2, max(0.6, r - 0.8)
     for x, y in pts:
-        lx = (x - cx) * ca + (y - cy) * sa
-        ly = -(x - cx) * sa + (y - cy) * ca
-        if abs(lx) <= hw - 2.0 and abs(ly) <= hh - 2.0:
-            qx = abs(lx) - (hw - 2.0 - r * 0.6)
-            qy = abs(ly) - (hh - 2.0 - r * 0.6)
-            if abs(lx) > hw - 3.2 or abs(ly) > hh - 3.2:
-                canvas[y][x] = SEAM
-            elif qx > 0 and qy > 0 and qx * qx + qy * qy > (r * 0.6) ** 2:
-                canvas[y][x] = SEAM
+        if not inside(x, y, ihw, ihh, ir):
+            continue
+        edge = False
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            if not inside(x + dx, y + dy, ihw, ihh, ir):
+                edge = True
+                break
+        if edge:
+            canvas[y][x] = SEAM
 
-    # 中间的扣子
-    put(int(round(cx)), int(round(cy)), SEAM)
-    put(int(round(cx)) - 1, int(round(cy)), dark)
-    put(int(round(cx)), int(round(cy)) - 1, hi)
-
-    # 内侧描边（用深棕，不用纯黑，边缘更柔和）
+    # 内侧描边（深棕，不用纯黑）
     for x, y in pts:
         for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
             if (x + dx, y + dy) not in members:
@@ -138,9 +140,9 @@ def rotated_pillow(cx, cy, hw, hh, r, angle, base, hi, dark):
 
 
 def draw_leg(x):
-    for y in range(44, 53):
-        t = (y - 44) / 8.0
-        half = 3.8 - t * 1.1
+    for y in range(45, 52):
+        t = (y - 45) / 6.0
+        half = 3.6 - t * 1.0
         left = int(round(x - half))
         right = int(round(x + half))
         for x2 in range(left, right + 1):
@@ -156,16 +158,12 @@ def wrinkle_h(x, y, n):
     for i in range(n):
         if 0 <= x + i < W and solid[y][x + i]:
             put(x + i, y, SEAM)
-            if solid[y - 1][x + i]:
-                put(x + i, y - 1, BROWN_MID)
 
 
 def wrinkle_v(x, y, n):
     for i in range(n):
         if 0 <= y + i < H and solid[y + i][x]:
             put(x, y + i, SEAM)
-            if solid[y + i][x + 1]:
-                put(x + 1, y + i, BROWN_MID)
 
 
 def draw_stain(cx, cy, rx, ry):
@@ -186,41 +184,127 @@ def draw_stain(cx, cy, rx, ry):
                 put(x, y, STAIN_EDGE)
 
 
+def draw_back():
+    """靠背：横跨整张沙发的一整片。"""
+    pts = rrect(10, BACK_TOP, 86, BACK_BOTTOM, (5, 5, 0, 0), BACK_FACE)
+    # 顶部滚边
+    for x, y in pts:
+        if y == BACK_TOP:
+            canvas[y][x] = BROWN_HI
+        elif y == BACK_TOP + 1:
+            canvas[y][x] = BROWN_HI
+        elif y == BACK_TOP + 2:
+            canvas[y][x] = BROWN_MID
+        elif y == BACK_TOP + 3:
+            canvas[y][x] = BROWN_MID
+        elif y == BACK_TOP + 4:
+            canvas[y][x] = SEAM
+    # 左右两块靠垫的分界
+    for y in range(BACK_TOP + 6, BACK_BOTTOM + 1):
+        if solid[y][SEAM_X]:
+            put(SEAM_X, y, SEAM)
+        if solid[y][SEAM_X + 1]:
+            put(SEAM_X + 1, y, BROWN_MID)
+    # 座垫挡在靠背前面，靠背底部留遮挡阴影
+    for y in range(SEAT_TOP - 3, SEAT_TOP):
+        for x in range(10, 87):
+            if solid[y][x]:
+                put(x, y, SHADOW if y == SEAT_TOP - 1 else BROWN_SHADE)
+
+
+def draw_seat():
+    """座垫：左右两块。"""
+    pts = rrect(6, SEAT_TOP, 90, SEAT_BOTTOM, (2, 2, 3, 3), BROWN)
+    for x, y in pts:
+        if y == SEAT_TOP:
+            canvas[y][x] = BROWN_HI
+        elif y == SEAT_TOP + 1:
+            canvas[y][x] = BROWN_HI
+        elif y == SEAT_TOP + 2:
+            canvas[y][x] = BROWN_MID
+        elif y == SEAT_TOP + 3:
+            canvas[y][x] = SEAM
+        elif y >= SEAT_BOTTOM - 1:
+            canvas[y][x] = BROWN_DARK
+    # 两块座垫之间的缝
+    for y in range(SEAT_TOP + 4, SEAT_BOTTOM):
+        if solid[y][SEAM_X]:
+            put(SEAM_X, y, SEAM)
+        if solid[y][SEAM_X + 1]:
+            put(SEAM_X + 1, y, BROWN_MID)
+
+
+def draw_rail():
+    pts = rrect(10, RAIL_TOP, 86, RAIL_BOTTOM, (2, 2, 2, 2), WOOD)
+    for x, y in pts:
+        if y == RAIL_TOP:
+            canvas[y][x] = WOOD_HI
+        elif y >= RAIL_BOTTOM - 1:
+            canvas[y][x] = WOOD_DARK
+    for x in range(14, 86):
+        if canvas[42][x][3] != 0 and (x * 5) % 13 == 0:
+            put(x, 42, WOOD_DARK)
+
+
+def draw_arm(x0, x1, mirrored):
+    pts = rrect(x0, 13, x1, 42, (6, 6, 2, 2), BROWN)
+    for x, y in pts:
+        if y <= 14:
+            canvas[y][x] = BROWN_HI
+        elif y == 15:
+            canvas[y][x] = BROWN_HI
+        elif y == 16:
+            canvas[y][x] = BROWN_MID
+        elif y == 20:
+            canvas[y][x] = SEAM
+        elif y >= 41:
+            canvas[y][x] = BROWN_DARK
+    # 扶手内侧（朝座垫那面）压一道暗边
+    inner = x1 if not mirrored else x0
+    for y in range(17, 42):
+        if solid[y][inner]:
+            put(inner, y, SEAM)
+        nb = inner - 1 if not mirrored else inner + 1
+        if solid[y][nb]:
+            put(nb, y, BROWN_MID)
+    outer = x0 if not mirrored else x1
+    for y in range(18, 42):
+        if solid[y][outer]:
+            put(outer, y, BROWN_MID if not mirrored else BROWN_SHADE)
+
+
 def draw_dust_specks():
     spots = []
     # 靠背顶
-    for x in range(70, 89, 9):
-        spots.append((x, 9))
-    # 扶手顶
-    for x in range(8, 21, 6):
-        spots.append((x, 17))
-    # 坐塾前沿
-    for x in range(28, 62, 11):
-        spots.append((x, 25))
-    # 靠枕顶
-    spots.append((30, 11))
-    # 靠背和坐塾之间的缝
-    for x in range(65, 68):
-        spots.append((x, 27))
-        spots.append((x, 33))
+    for x in range(16, 84, 8):
+        spots.append((x, BACK_TOP))
+    # 两侧扶手顶
+    for x in (5, 10, 85, 90):
+        spots.append((x, 13))
+    # 座垫前沿
+    for x in range(20, 82, 12):
+        spots.append((x, SEAT_TOP))
+    # 靠背和座垫之间的缝
+    for x in range(24, 80, 22):
+        spots.append((x, SEAT_TOP - 1))
     for x, y in spots:
         put(x, y, DUST if (x + y) % 3 else DUST_DIM)
         if (x * 2 + y) % 3 == 0:
             put(x, y + 1, DUST_DIM)
-    # 少量零散灰点，只落在地上表面
+    # 少量零散灰点，只落在上表面
     for _ in range(8):
-        x = rng.randrange(10, 88)
-        y = rng.randrange(9, 42)
+        x = rng.randrange(6, 91)
+        y = rng.randrange(8, 40)
         if solid[y][x] and not solid[y - 1][x]:
             put(x, y, DUST_DIM)
 
 
 MOTES = (
-    (18.0, 10.0, 2.2, 0.00),
-    (36.0, 4.0, 2.4, 0.32),
-    (48.0, 9.0, 2.0, 0.62),
-    (64.0, 3.5, 2.2, 0.15),
-    (80.0, 4.5, 2.4, 0.78),
+    (10.0, 3.0, 1.6, 0.00),
+    (26.0, 2.0, 1.4, 0.32),
+    (44.0, 3.5, 1.6, 0.62),
+    (62.0, 2.0, 1.4, 0.15),
+    (78.0, 3.5, 1.6, 0.78),
 )
 
 
@@ -242,88 +326,38 @@ def build(frame):
     canvas = [[(0, 0, 0, 0) for _ in range(W)] for _ in range(H)]
     solid = [[False] * W for _ in range(H)]
 
-    # 腿
-    draw_leg(18)
-    draw_leg(78)
+    # 腿 → 木框 → 靠背 → 座垫
+    draw_leg(15)
+    draw_leg(81)
+    draw_rail()
+    draw_back()
+    draw_seat()
 
-    # 木框
-    pts = rrect(12, 39, 88, 44, (2, 2, 2, 2), WOOD)
-    band(pts, 39, 44, top=1, bottom=2, top_color=WOOD_HI, bottom_color=WOOD_DARK)
-    for x in range(16, 88):
-        if canvas[42][x][3] != 0 and (x * 5) % 13 == 0:
-            put(x, 42, WOOD_DARK)
+    # 两个靠枕：斜靠在靠背上，都堆在左边
+    rotated_pillow(27, 16, 9.5, 7.5, 3.5, math.radians(-14), PILLOW_A, PILLOW_A_HI, BROWN_DARK)
+    rotated_pillow(39, 24, 8.5, 5.5, 3.0, math.radians(18), PILLOW_B, PILLOW_B_HI, BROWN_SHADE)
 
-    # 靠背：左上角大圆角，做出后倾的斜肩
-    pts = rrect(66, 8, 90, 41, (15, 7, 3, 3), BROWN)
-    band(pts, 8, 41, top=2, bottom=3, top_color=BROWN_HI, bottom_color=BROWN_DARK)
-    # 靠背顶部的滚边
-    for x in range(72, 89):
-        if canvas[10][x][3] != 0:
-            put(x, 10, BROWN_MID)
-    for y in range(14, 41):
-        put(66, y, BROWN_DARK)
-        put(67, y, BROWN_DARK)
-        put(68, y, SEAM)
-        put(69, y, BROWN_DARK)
-    for y in range(9, 41):
-        put(90, y, BROWN_SHADE)
-        put(89, y, BROWN_DARK)
-
-    # 坐塾
-    pts = rrect(20, 24, 69, 39, (5, 4, 3, 3), BROWN)
-    band(pts, 24, 39, top=2, bottom=2, top_color=BROWN_HI, bottom_color=BROWN_DARK)
-    # 中间鼓起来一点，别像床板
-    for x in range(23, 67):
-        lift = int(round(math.sin(math.pi * (x - 23) / 43.0) * 4.0))
-        for k in range(lift):
-            y = 23 - k
-            if 0 <= y < H:
-                put(x, y, BROWN_HI if k >= lift - 2 else BROWN_MID)
-                solid[y][x] = True
-    for x in range(24, 68):
-        if canvas[35][x][3] != 0:
-            put(x, 35, SEAM)
-        if canvas[36][x][3] != 0:
-            put(x, 36, BROWN_MID)
-    # 坐塾和靠背之间的暗缝
-    for y in range(24, 40):
-        for x in range(64, 68):
-            if canvas[y][x][3] != 0:
-                put(x, y, BROWN_SHADE)
-
-    # 两个靠枕：一个立着斜靠扶手，一个歪在坐塾上，乱堆在左边
-    rotated_pillow(30, 18, 9.5, 7.5, 3.5, math.radians(-16), PILLOW_A, PILLOW_A_HI, BROWN_DARK)
-    rotated_pillow(43, 25, 9, 5.5, 3.0, math.radians(19), PILLOW_B, PILLOW_B_HI, BROWN_SHADE)
-
-    # 扶手盖在最前面
-    pts = rrect(4, 16, 22, 41, (8, 8, 3, 3), BROWN)
-    band(pts, 16, 41, top=3, bottom=2, top_color=BROWN_HI, bottom_color=BROWN_DARK)
-    for x in range(6, 22):
-        if canvas[23][x][3] != 0:
-            put(x, 23, SEAM)
-    for y in range(17, 41):
-        put(21, y, SEAM)
-        put(22, y, BROWN_SHADE)
+    # 两只扶手盖在最前面
+    draw_arm(2, 14, False)
+    draw_arm(82, 94, True)
 
     # 布料褶皱
-    wrinkle_h(27, 31, 5)
-    wrinkle_h(52, 30, 4)
-    wrinkle_h(60, 33, 4)
-    wrinkle_h(30, 37, 4)
-    wrinkle_v(74, 22, 4)
-    wrinkle_v(80, 27, 3)
-    wrinkle_v(85, 19, 3)
-    wrinkle_h(9, 28, 5)
-    wrinkle_h(13, 35, 4)
+    wrinkle_h(30, 33, 5)
+    wrinkle_h(58, 31, 5)
+    wrinkle_v(70, 24, 4)
+    wrinkle_v(34, 15, 4)
+    wrinkle_h(6, 27, 4)
+    wrinkle_h(87, 28, 4)
 
     # 污渍
-    draw_stain(31, 32, 5, 2)
-    draw_stain(76, 16, 4, 3)
-    draw_stain(81, 31, 5, 3)
-    draw_stain(13, 21, 4, 2)
-    draw_stain(35, 16, 3, 2)
-    draw_stain(57, 31, 5, 3)
-    draw_stain(47, 24, 3, 2)
+    draw_stain(26, 14, 3, 2)
+    draw_stain(64, 12, 4, 2)
+    draw_stain(74, 20, 3, 2)
+    draw_stain(22, 31, 4, 2)
+    draw_stain(64, 31, 4, 2)
+    draw_stain(72, 35, 3, 1)
+    draw_stain(8, 22, 2, 2)
+    draw_stain(88, 30, 2, 2)
 
     # 灰尘
     draw_dust_specks()

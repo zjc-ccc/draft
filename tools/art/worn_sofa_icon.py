@@ -1,7 +1,8 @@
 """生成 assets/props/worn-sofa/preview/worn-sofa_icon_32.png
 
-32x32 物品栏图标：简化侧视沙发。保留靠背（右）、坐塾、扶手（左）、
-两个乱堆的靠枕，以及几块暗黄污渍。
+32x32 物品栏图标：正面平视的简化版破旧双人沙发。
+构图上把明暗拉开：靠背整片压暗、座垫亮面、两侧扶手居中，靠背明显高出扶手；
+两个靠枕堆在左边，再点两块暗黄污渍和一点积灰。
 """
 
 import math
@@ -13,22 +14,30 @@ W = H = 32
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 OUT = os.path.join(ROOT, "assets", "props", "worn-sofa", "preview", "worn-sofa_icon_32.png")
 
-BROWN = (80, 57, 41, 255)
-BROWN_MID = (96, 70, 51, 255)
-BROWN_HI = (116, 87, 64, 255)
-BROWN_DARK = (56, 40, 28, 255)
-BROWN_SHADE = (44, 31, 21, 255)
-OUTLINE = (30, 21, 15, 255)
+INK = (24, 17, 12, 255)
+BACK = (64, 46, 33, 255)
+BACK_TOP = (98, 72, 53, 255)
+SEAT = (108, 79, 58, 255)
+SEAT_TOP = (140, 108, 82, 255)
+SEAT_MID = (124, 94, 70, 255)
+SEAT_BOT = (70, 50, 36, 255)
+ARM = (112, 84, 61, 255)
+ARM_TOP = (138, 106, 80, 255)
+ARM_SIDE = (56, 40, 29, 255)
+RIM = (62, 45, 33, 255)
 
-PILLOW_A = (100, 74, 54, 255)
-PILLOW_A_HI = (126, 96, 72, 255)
-PILLOW_B = (72, 51, 36, 255)
-PILLOW_B_HI = (102, 74, 54, 255)
+PILLOW_A = (154, 122, 95, 255)
+PILLOW_A_HI = (174, 144, 116, 255)
+PILLOW_A_DARK = (126, 98, 76, 255)
+PILLOW_B = (112, 85, 65, 255)
+PILLOW_B_HI = (132, 104, 81, 255)
+PILLOW_B_DARK = (90, 68, 52, 255)
 
-STAIN = (118, 98, 53, 255)
-DUST = (172, 162, 140, 255)
-WOOD = (70, 46, 30, 255)
-WOOD_HI = (96, 68, 44, 255)
+STAIN = (120, 102, 64, 255)
+DUST = (184, 174, 152, 255)
+WOOD = (76, 51, 35, 255)
+WOOD_HI = (104, 74, 50, 255)
+WOOD_DARK = (48, 32, 22, 255)
 
 canvas = [[(0, 0, 0, 0) for _ in range(W)] for _ in range(H)]
 solid = [[False] * W for _ in range(H)]
@@ -63,96 +72,92 @@ def rrect(x0, y0, x1, y1, radii, color):
 def pillow(cx, cy, hw, hh, r, angle, base, hi, dark):
     ca = math.cos(angle)
     sa = math.sin(angle)
-    pts = []
-    members = set()
-    for y in range(int(cy - hh - hw - 1), int(cy + hh + hw + 2)):
-        for x in range(int(cx - hw - hh - 1), int(cx + hw + hh + 2)):
-            lx = (x - cx) * ca + (y - cy) * sa
-            ly = -(x - cx) * sa + (y - cy) * ca
-            if abs(lx) <= hw and abs(ly) <= hh:
-                qx = abs(lx) - (hw - r)
-                qy = abs(ly) - (hh - r)
-                if qx <= 0 or qy <= 0 or qx * qx + qy * qy <= r * r:
-                    put(x, y, base)
-                    solid[y][x] = True
-                    pts.append((x, y))
-                    members.add((x, y))
-    for x, y in pts:
+
+    def inside(x, y):
         lx = (x - cx) * ca + (y - cy) * sa
         ly = -(x - cx) * sa + (y - cy) * ca
-        if ly < -hh * 0.25:
-            canvas[y][x] = hi
-        elif ly > hh * 0.4:
-            canvas[y][x] = dark
+        if abs(lx) > hw or abs(ly) > hh:
+            return False
+        qx = abs(lx) - (hw - r)
+        qy = abs(ly) - (hh - r)
+        return qx <= 0 or qy <= 0 or qx * qx + qy * qy <= r * r
+
+    pts = []
+    for y in range(int(cy - hh - hw - 1), int(cy + hh + hw + 2)):
+        for x in range(int(cx - hw - hh - 1), int(cx + hw + hh + 2)):
+            if inside(x, y):
+                put(x, y, base)
+                solid[y][x] = True
+                pts.append((x, y))
+
+    # 上亮下暗，只有一条，别加描边（32 像素加不起）
     for x, y in pts:
-        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
-            if (x + dx, y + dy) not in members:
-                canvas[y][x] = BROWN_SHADE
-                break
+        ly = -(x - cx) * sa + (y - cy) * ca
+        if ly <= -hh + 1.0:
+            canvas[y][x] = hi
+        elif ly >= hh - 0.9:
+            canvas[y][x] = dark
 
 
-# 靠背（右）
-pts = rrect(18, 4, 29, 21, (6, 3, 1, 1), BROWN)
+# 腿
+for lx in (6, 23):
+    for y in range(23, 28):
+        put(lx, y, WOOD)
+        put(lx + 1, y, WOOD)
+        solid[y][lx] = solid[y][lx + 1] = True
+    put(lx, 23, WOOD_HI)
+    put(lx + 1, 27, WOOD_DARK)
+
+# 木框
+pts = rrect(3, 21, 28, 23, (1, 1, 1, 1), WOOD)
+for x, y in pts:
+    if y == 21:
+        canvas[y][x] = WOOD_HI
+    elif y == 23:
+        canvas[y][x] = WOOD_DARK
+
+# 靠背：一整片横跨沙发，压暗
+pts = rrect(4, 4, 27, 17, (3, 3, 0, 0), BACK)
 for x, y in pts:
     if y <= 5:
-        canvas[y][x] = BROWN_HI
-for y in range(7, 21):
-    put(18, y, BROWN_DARK)
-    put(19, y, BROWN_DARK)
+        canvas[y][x] = BACK_TOP
 
-# 坐塾（中间），顶面拱一点
-pts = rrect(5, 11, 23, 20, (3, 2, 1, 1), BROWN)
-for x in range(7, 22):
-    lift = int(round(math.sin(math.pi * (x - 7) / 15.0) * 1.8))
-    for k in range(lift):
-        put(x, 10 - k, BROWN_HI)
-        solid[10 - k][x] = True
+# 座垫
+pts = rrect(1, 15, 30, 21, (1, 1, 2, 2), SEAT)
 for x, y in pts:
-    if y == 11:
-        canvas[y][x] = BROWN_HI
+    if y == 15:
+        canvas[y][x] = SEAT_TOP
+    elif y == 16:
+        canvas[y][x] = SEAT_MID
+    elif y >= 20:
+        canvas[y][x] = SEAT_BOT
 
-# 木框 + 腿
-rrect(5, 20, 27, 22, (1, 1, 1, 1), WOOD)
-for x in range(6, 27):
-    if canvas[20][x][3] != 0:
-        put(x, 20, WOOD_HI)
-for x in range(6, 27):
-    if canvas[22][x][3] != 0:
-        put(x, 22, BROWN_SHADE)
-for lx in (7, 24):
-    for y in range(23, 26):
-        for x in range(lx, lx + 2):
-            put(x, y, WOOD)
-            solid[y][x] = True
-    put(lx, 23, WOOD_HI)
+# 两个靠枕：斜靠在靠背的暗面上，堆在左边
+pillow(9, 9.5, 4.0, 2.4, 1.4, math.radians(-10), PILLOW_A, PILLOW_A_HI, PILLOW_A_DARK)
+pillow(13, 12, 3.4, 1.9, 1.1, math.radians(14), PILLOW_B, PILLOW_B_HI, PILLOW_B_DARK)
 
-# 两个靠枕，乱堆在左边
-pillow(10, 8, 5.5, 4.2, 2.0, math.radians(-16), PILLOW_A, PILLOW_A_HI, BROWN_DARK)
-pillow(15, 12, 5.0, 3.2, 1.8, math.radians(19), PILLOW_B, PILLOW_B_HI, BROWN_SHADE)
-
-# 扶手（左，盖在前面）
-pts = rrect(1, 8, 8, 21, (4, 4, 1, 1), BROWN)
-for x, y in pts:
-    if y <= 9:
-        canvas[y][x] = BROWN_HI
-for y in range(10, 21):
-    put(8, y, BROWN_SHADE)
+# 两侧扶手，盖在最前面
+for x0, x1, mirrored in ((1, 6, False), (25, 30, True)):
+    pts = rrect(x0, 9, x1, 21, (3, 3, 1, 1), ARM)
+    for x, y in pts:
+        if y <= 10:
+            canvas[y][x] = ARM_TOP
+        elif y >= 20:
+            canvas[y][x] = ARM_SIDE
+    inner = x1 if not mirrored else x0
+    for y in range(11, 21):
+        if solid[y][inner]:
+            put(inner, y, ARM_SIDE)
 
 # 污渍
-for cx, cy, rx, ry in ((14, 17, 3.2, 1.6), (24, 9, 2.4, 1.8), (4, 12, 2.2, 1.2)):
-    for y in range(int(cy - ry - 1), int(cy + ry + 2)):
-        for x in range(int(cx - rx - 1), int(cx + rx + 2)):
-            if not (0 <= x < W and 0 <= y < H) or not solid[y][x]:
-                continue
-            d = ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2
-            if d <= 1.0:
-                put(x, y, STAIN)
+for px, py in ((21, 8), (22, 8), (21, 9), (22, 9), (22, 12), (23, 12), (22, 13), (23, 13),
+               (17, 18), (18, 18), (17, 19), (22, 20), (23, 20)):
+    if solid[py][px]:
+        put(px, py, STAIN)
 
-# 灰尘
-put(21, 4, DUST)
-put(7, 8, DUST)
-put(2, 9, DUST)
-put(19, 18, DUST)
+# 积灰
+for x, y in ((8, 4), (16, 4), (24, 4), (2, 9), (29, 9), (6, 15), (25, 15)):
+    put(x, y, DUST)
 
 # 外描边
 for y in range(H):
@@ -162,7 +167,7 @@ for y in range(H):
         for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
             nx, ny = x + dx, y + dy
             if 0 <= nx < W and 0 <= ny < H and solid[ny][nx]:
-                canvas[y][x] = OUTLINE
+                canvas[y][x] = INK
                 break
 
 write_png(OUT, W, H, canvas)
