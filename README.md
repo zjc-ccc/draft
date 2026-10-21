@@ -1,40 +1,50 @@
-# Draft — 个人素材库
+# Draft · 游戏素材库
 
-存放个人美术、音频、字体、Shader、参考图等素材的仓库（不包含完整游戏工程）。
+我绘制游戏素材的工作目录。**一个素材一个文件夹**：源文件、导出文件、元数据都放在素材自己的目录里，互不干扰。
 
-## 建议的目录约定
+## 目录结构
 
 ```
-draft/
-├── 2d/            贴图、精灵、UI 素材
-├── 3d/            模型、贴图、HDRI
-├── audio/         音效与音乐
-├── fonts/         字体文件
-├── shaders/       Shader 与材质参考
-├── refs/          参考图、灵感收集
-└── tools/         自己写的小工具/脚本
+assets/
+└── <分类>/<素材名>/
+    ├── README.md      元数据 + 说明（由模板生成）
+    ├── source/        可编辑源文件（.aseprite / .psd / .kra）
+    ├── export/        交付给 Godot 的 PNG
+    ├── preview.png    可选，缩略图
+    └── archive/       可选，废弃稿 / 旧版本
 ```
 
-目录可以按需增删，保持「一类素材一个目录」即可。
+默认分类（可以自己加）：`characters` `props` `tiles` `ui` `backgrounds` `vfx`
 
-## 素材使用约定
+## 新建素材
 
-- 每个素材目录放一个 `SOURCES.md`，记录来源、授权（CC0 / 购买 / 自制）和原始链接。
-- 文件名用英文 + 连字符，避免空格和特殊字符，跨平台、跨工具更安全。
-- 大文件（PSD、BLEND、EXR、FBX、WAV 等）单个不要超过 100 MB，超过请用 Git LFS。
+```powershell
+.\tools\new-asset.ps1 -Id slime -Category characters
+```
+
+会生成 `assets/characters/slime/`，带好 `source/`、`export/` 和填好日期的 `README.md`。
+
+## 重建索引
+
+```powershell
+.\tools\build-index.ps1
+```
+
+扫描所有素材的 README，重新生成 [INDEX.md](INDEX.md)（素材清单 + 状态 + 导出数量），并检查命名和元数据是否规范。
+
+## 三条核心约定
+
+1. **素材名用英文 kebab-case**：`wooden-door`、`slime`，不用中文、空格、大写。
+2. **源文件与导出分离**：`source/` 只放可编辑源文件，`export/` 只放最终 PNG。游戏只导入 `export/`。
+3. **一个提交一个素材**：素材说明和源文件、导出图一起提交，历史清晰。
+
+导出帧命名：`<素材名>_<状态>_<两位帧号>.png`，例如 `slime_idle_00.png`。
+
+完整规范见 [docs/asset-guide.md](docs/asset-guide.md)，第三方素材登记见 [SOURCES.md](SOURCES.md)。
 
 ## 大文件（可选）
 
-```bash
+```powershell
 git lfs install
-git lfs track "*.psd" "*.blend" "*.exr" "*.fbx" "*.wav"
-git add .gitattributes
-```
-
-## 提交
-
-```bash
-git add -A
-git commit -m "添加素材：xxx"
-git push
+git lfs track "*.psd" "*.kra" "*.psb"
 ```

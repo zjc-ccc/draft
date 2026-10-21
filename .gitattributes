@@ -1,0 +1,30 @@
+# 统一按 LF 存储文本，避免 Windows 上反复出现换行符警告
+* text=auto eol=lf
+
+# 图片
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.gif binary
+*.bmp binary
+*.tga binary
+
+# 绘制源文件
+*.psd binary
+*.psb binary
+*.kra binary
+*.aseprite binary
+*.ase binary
+
+# 3D / 音频 / 字体 / 压缩包
+*.blend binary
+*.fbx binary
+*.glb binary
+*.wav binary
+*.ogg binary
+*.mp3 binary
+*.ttf binary
+*.otf binary
+*.zip binary
+*.7z binary

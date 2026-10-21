@@ -1,4 +1,14 @@
-# Godot 导入缓存与产物（不要提交）
+# 绘制软件的临时/备份文件
+*.autosave
+*.as~
+~$*
+*.tmp
+*.bak
+
+# 草稿区：写完了再决定要不要放进 assets/
+_scratch/
+
+# Godot 缓存与导入产物
 .godot/
 *.import
 *.translation
@@ -17,8 +27,3 @@ export.cfg
 Thumbs.db
 desktop.ini
 .DS_Store
-
-# 临时文件
-*.tmp
-*.bak
-~$*
