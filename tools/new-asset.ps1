@@ -41,6 +41,7 @@ if (Test-Path $target) { throw "Asset already exists: assets\$Category\$Id" }
 
 New-Item -ItemType Directory -Force -Path (Join-Path $target 'source') | Out-Null
 New-Item -ItemType Directory -Force -Path (Join-Path $target 'export') | Out-Null
+New-Item -ItemType Directory -Force -Path (Join-Path $target 'preview') | Out-Null
 
 $text = [System.IO.File]::ReadAllText($template, [System.Text.Encoding]::UTF8)
 $text = $text.Replace('{{ID}}', $Id).Replace('{{CATEGORY}}', $Category).Replace('{{DATE}}', (Get-Date -Format 'yyyy-MM-dd'))
@@ -49,7 +50,8 @@ $utf8 = [System.Text.UTF8Encoding]::new($false)
 [System.IO.File]::WriteAllText((Join-Path $target 'README.md'), $text, $utf8)
 
 Write-Host "已创建 assets/$Category/$Id" -ForegroundColor Green
-Write-Host "  source\  <- 放可编辑源文件（.aseprite / .psd / .kra）"
-Write-Host "  export\  <- 放导出给 Godot 的 PNG"
+Write-Host "  source\   <- 放可编辑源文件（.aseprite / .psd / .kra）"
+Write-Host "  export\   <- 放导出给 Godot 的 PNG"
+Write-Host "  preview\  <- 放简化版物品栏图标（<id>_icon_32.png）"
 Write-Host ""
 Write-Host "下一步：画完填好 README.md，运行 .\tools\build-index.ps1 更新索引"

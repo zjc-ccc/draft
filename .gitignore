@@ -23,6 +23,10 @@ export.cfg
 *.sublime-project
 *.sublime-workspace
 
+# Python（生成脚本的缓存）
+__pycache__/
+*.pyc
+
 # 操作系统生成的文件
 Thumbs.db
 desktop.ini

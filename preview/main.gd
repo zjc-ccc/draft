@@ -2,7 +2,9 @@ extends Control
 ## Draft 素材库预览器
 ##
 ## 直接扫描 `../assets/`，读取每个素材文件夹里的 `export/*.png`，
-## 按文件名识别动画状态并循环播放。不复制、不导入素材。
+## 按文件名识别动画状态并循环播放；`preview/` 里的简化图标也能单独查看。
+
+const ICON_KEY := "__icon__"
 
 @onready var category_list: ItemList = $HSplit/Left/CategoryList
 @onready var asset_list: ItemList = $HSplit/Left/AssetList
@@ -156,11 +158,13 @@ func _show(asset: Dictionary) -> void:
 	state_keys.clear()
 
 	var groups := _group_frames(asset)
-	if groups.is_empty():
+	var icons := _list_pngs(String(asset["dir"]).path_join("preview"))
+
+	if groups.is_empty() and icons.is_empty():
 		state_option.add_item("无导出文件")
 		state_option.disabled = true
 		frames.clear()
-		preview.texture = _load_texture(String(asset["dir"]).path_join("preview.png"))
+		preview.texture = null
 		return
 
 	state_option.disabled = false
@@ -169,6 +173,9 @@ func _show(asset: Dictionary) -> void:
 	for key in keys:
 		state_keys.append(key)
 		state_option.add_item("静帧" if key == "" else key)
+	if not icons.is_empty():
+		state_keys.append(ICON_KEY)
+		state_option.add_item("图标")
 	state_option.select(0)
 	_set_state(state_keys[0])
 
@@ -183,16 +190,18 @@ func _set_state(state: String) -> void:
 	frame_index = 0
 	frame_time = 0.0
 
-	var groups := _group_frames(current)
-	for path in groups.get(state, []):
+	var paths: Array = []
+	if state == ICON_KEY:
+		paths = _list_pngs(String(current["dir"]).path_join("preview"))
+	else:
+		paths = _group_frames(current).get(state, [])
+
+	for path in paths:
 		var texture := _load_texture(path)
 		if texture != null:
 			frames.append(texture)
 
-	if frames.is_empty():
-		preview.texture = _load_texture(String(current["dir"]).path_join("preview.png"))
-	else:
-		preview.texture = frames[0]
+	preview.texture = frames[0] if not frames.is_empty() else null
 
 
 ## 按文件名把导出图分组：<id>_<state>_<帧号>.png

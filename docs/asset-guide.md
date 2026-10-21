@@ -13,8 +13,8 @@ assets/<分类>/<素材名>/
 | 目录/文件 | 放什么 | 会不会进游戏 |
 | --- | --- | --- |
 | `source/` | `.aseprite` / `.psd` / `.kra` 可编辑源文件 | 否 |
-| `export/` | 最终 PNG（透明背景） | 是 |
-| `preview.png` | 缩略图，给 INDEX 和 GitHub 页面看 | 否 |
+| `export/` | 最终 PNG（透明背景），游戏内实际尺寸 | 是 |
+| `preview/` | 简化版：物品栏 / 背包列表用的小图标 | 是（UI） |
 | `archive/` | 废弃稿、旧版本、实验稿 | 否 |
 
 `source/` 和 `export/` 一定要分开：源文件以后还要改，导出图随时可以重新生成；混在一起时间长了就分不清哪个是用来交付的。
@@ -48,8 +48,9 @@ assets/<分类>/<素材名>/
 | 动画帧 | `<素材名>_<状态>_<两位帧号>.png` |
 | 图集 | `<素材名>_<状态>_sheet.png` |
 | 变体 | `<素材名>_<状态>_<两位帧号>_<变体>.png` |
+| 简化图标 | `preview/<素材名>_icon_<边长>.png` |
 
-例：`slime_idle_00.png`、`slime_walk_03.png`、`slime_walk_sheet.png`。
+例：`slime_idle_00.png`、`slime_walk_03.png`、`slime_walk_sheet.png`、`preview/slime_icon_32.png`。
 
 ## 4. 元数据
 
@@ -102,6 +103,16 @@ tags: 史莱姆, 敌人, 低像素
 - 像素画导出用最近邻缩放（Aseprite 导出时不要开滤镜）。
 - 动画帧统一锚点（例如底部居中），并在 README 里写清楚，接进游戏才不会跳。
 - 需要图集时额外导出一份 `_sheet.png`，但单帧文件保留，方便单独调整。
+
+### 简化图标（`preview/`）
+
+每个素材都要有一份简化版，放在素材自己的 `preview/` 里，给物品栏、背包列表、掉落提示这类小尺寸界面用。
+
+- 尺寸默认 `32x32`，界面更小就再出 `16x16`，命名 `<素材名>_icon_16.png`。
+- 不是把大图直接缩小：去掉细碎纹理，只保留**一眼能认出的轮廓和主色**。
+- 静帧即可，`1 帧 / fps 0`；不需要动画。
+- 可以多尺寸并存，游戏按 UI 场景挑一个用。
+- 新素材由 `tools/new-asset.ps1` 自动建好 `preview/` 目录；`build-index.ps1` 缺图标会报「no simplified icon」。
 
 ## 7. Git
 

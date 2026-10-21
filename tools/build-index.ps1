@@ -88,15 +88,28 @@ if (Test-Path $assetsRoot) {
                 $warnings.Add("- status is 'done' but export/ is empty: $rel")
             }
 
+            $previewDir = Join-Path $assetDir.FullName 'preview'
+            $icons = @()
+            if (Test-Path $previewDir) {
+                $icons = @(Get-ChildItem $previewDir -File -Recurse | Where-Object { $_.Extension -eq '.png' } | Sort-Object Name)
+            }
+            if ($icons.Count -eq 0) {
+                $warnings.Add("- no simplified icon in preview/: $rel")
+            }
+            $iconCell = '-'
+            if ($icons.Count -gt 0) {
+                $iconCell = "![]($rel/preview/$($icons[0].Name))"
+            }
+
             $count++
-            $rows.Add("| [$id]($rel/) | $category | $(Get-Value $meta 'status' '?') | $(Get-Value $meta 'size') | $(Get-Value $meta 'frames') | $(Get-Value $meta 'fps') | $(Get-Value $meta 'license' '?') | $(Get-Value $meta 'created') | $exportCount |")
+            $rows.Add("| [$id]($rel/) | $category | $(Get-Value $meta 'status' '?') | $(Get-Value $meta 'size') | $(Get-Value $meta 'frames') | $(Get-Value $meta 'fps') | $(Get-Value $meta 'license' '?') | $(Get-Value $meta 'created') | $exportCount | $iconCell |")
         }
     }
 }
 
 if ($count -eq 0) {
     $summary = '还没有素材。运行 `.\tools\new-asset.ps1 -Id <name> -Category <category>` 创建第一个。'
-    $rows.Add('| _（空）_ | | | | | | | | |')
+    $rows.Add('| _（空）_ | | | | | | | | | |')
 } else {
     $summary = "共 $count 个素材。"
 }

@@ -78,5 +78,5 @@ texture_filter = 1
 
 [node name="Hint" type="Label" parent="HSplit/Right"]
 layout_mode = 2
-text = "右上角切换动画状态；播放帧率取自素材 README 的 fps 字段。素材改动后点「重新扫描」。"
+text = "右上角切换动画状态和简化图标；播放帧率取自素材 README 的 fps 字段。素材改动后点「重新扫描」。"
 theme_override_font_sizes/font_size = 12

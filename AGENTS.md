@@ -17,6 +17,7 @@
 - 分类（`characters` / `props` / `tiles` / `ui` / `backgrounds` / `vfx`，或用户自定义）
 - 素材名（kebab-case 英文，例如 `slime`、`wooden-door`）
 - 动画状态列表（如 `idle` / `walk` / `attack`）
+- 简化图标尺寸（物品栏用，默认 32×32，做之前确认一下）
 - 如果用户上传了参考图或描述，先复述一遍规格再动手
 
 ## 默认值（仅在用户说「随便」或「你定」时使用）
@@ -30,11 +31,12 @@
 
 ## 生成之后
 
-1. 文件放对位置：源文件进 `source/`，交付 PNG 进 `export/`
-2. 导出命名：`<素材名>_<状态>_<两位帧号>.png`
-3. README 的 front matter 必须和实际文件一致（`frames`、`fps`、`size`）
-4. 跑 `.\tools\build-index.ps1` 更新索引，确认没有警告
-5. 一次提交只放一个素材，提交信息 `添加素材：<素材名>`
+1. 文件放对位置：源文件进 `source/`，交付 PNG 进 `export/`，简化图标进 `preview/`
+2. 导出命名：`<素材名>_<状态>_<两位帧号>.png`；图标命名 `preview/<素材名>_icon_<边长>.png`
+3. **每个素材默认都要有简化图标**：物品栏 / 背包列表用，尺寸没指定时先问（默认 32x32）
+4. README 的 front matter 必须和实际文件一致（`frames`、`fps`、`size`）
+5. 跑 `.\tools\build-index.ps1` 更新索引，确认没有警告
+6. 一次提交只放一个素材，提交信息 `添加素材：<素材名>`
 
 ## 不要做的事
 
