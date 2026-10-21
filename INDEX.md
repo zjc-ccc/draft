@@ -4,8 +4,8 @@
 
 共 1 个素材。
 
-| 素材 | 分类 | 状态 | 尺寸 | 帧 | fps | 授权 | 创建 | 导出 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [giant-log](assets/props/giant-log/) | props | wip | 64x64 | 1 | 0 | own | 2026-10-21 | 1 |
+| 素材 | 分类 | 状态 | 尺寸 | 帧 | fps | 授权 | 创建 | 导出 | 图标 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| [giant-log](assets/props/giant-log/) | props | wip | 64x64 | 1 | 0 | own | 2026-10-21 | 1 | ![](assets/props/giant-log/preview/giant-log_icon_32.png) |
 
 
