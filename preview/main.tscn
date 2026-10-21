@@ -1,0 +1,82 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://main.gd" id="1_main"]
+
+[node name="Main" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_main")
+
+[node name="HSplit" type="HSplitContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+split_offset = 240
+
+[node name="Left" type="VBoxContainer" parent="HSplit"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+
+[node name="CategoryTitle" type="Label" parent="HSplit/Left"]
+layout_mode = 2
+text = "分类"
+
+[node name="CategoryList" type="ItemList" parent="HSplit/Left"]
+custom_minimum_size = Vector2(0, 130)
+layout_mode = 2
+allow_reselect = true
+
+[node name="AssetTitle" type="Label" parent="HSplit/Left"]
+layout_mode = 2
+text = "素材"
+
+[node name="AssetList" type="ItemList" parent="HSplit/Left"]
+layout_mode = 2
+size_flags_vertical = 3
+allow_reselect = true
+
+[node name="Rescan" type="Button" parent="HSplit/Left"]
+layout_mode = 2
+text = "重新扫描"
+
+[node name="Right" type="VBoxContainer" parent="HSplit"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Header" type="HBoxContainer" parent="HSplit/Right"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="HSplit/Right/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "（选择一个素材）"
+theme_override_font_sizes/font_size = 22
+
+[node name="StateOption" type="OptionButton" parent="HSplit/Right/Header"]
+layout_mode = 2
+
+[node name="Info" type="Label" parent="HSplit/Right"]
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="Preview" type="TextureRect" parent="HSplit/Right"]
+layout_mode = 2
+size_flags_vertical = 3
+expand_mode = 1
+stretch_mode = 5
+texture_filter = 1
+
+[node name="Hint" type="Label" parent="HSplit/Right"]
+layout_mode = 2
+text = "右上角切换动画状态；播放帧率取自素材 README 的 fps 字段。素材改动后点「重新扫描」。"
+theme_override_font_sizes/font_size = 12

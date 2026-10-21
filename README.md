@@ -32,6 +32,12 @@ assets/
 
 扫描所有素材的 README，重新生成 [INDEX.md](INDEX.md)（素材清单 + 状态 + 导出数量），并检查命名和元数据是否规范。
 
+## 预览
+
+用 Godot 4.6 打开 `preview/project.godot`，按 F5。左边选分类和素材，右边看图和播放动画；素材改完点「重新扫描」即可，不需要复制素材。
+
+细节见 [preview/README.md](preview/README.md)。
+
 ## 三条核心约定
 
 1. **素材名用英文 kebab-case**：`wooden-door`、`slime`，不用中文、空格、大写。
