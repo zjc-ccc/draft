@@ -2,10 +2,11 @@
 
 > 由 `tools/build-index.ps1` 自动生成，请勿手动编辑。新增素材请用 `tools/new-asset.ps1`。
 
-共 8 个素材。
+共 9 个素材。
 
 | 素材 | 分类 | 状态 | 尺寸 | 帧 | fps | 授权 | 创建 | 导出 | 图标 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| [cockroach](assets/characters/cockroach/) | characters | wip | 64x64 | 8 | 8 | own | 2026-10-24 | 8 | ![](assets/characters/cockroach/preview/cockroach_icon_32.png) |
 | [spider](assets/characters/spider/) | characters | wip | 32x32 | 12 | 12 | own | 2026-10-21 | 48 | ![](assets/characters/spider/preview/spider_icon_32.png) |
 | [bamboo-grove](assets/props/bamboo-grove/) | props | wip | 96x160 | 8 | 6 | own | 2026-10-22 | 8 | ![](assets/props/bamboo-grove/preview/bamboo-grove_icon_32.png) |
 | [giant-log](assets/props/giant-log/) | props | wip | 64x64 | 1 | 0 | own | 2026-10-21 | 1 | ![](assets/props/giant-log/preview/giant-log_icon_32.png) |
