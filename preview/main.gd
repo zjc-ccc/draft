@@ -30,6 +30,7 @@ var texture_cache := {}
 func _ready() -> void:
 	root_dir = ProjectSettings.globalize_path("res://").path_join("..").simplify_path()
 	$HSplit/Left/Rescan.pressed.connect(scan)
+	$HSplit/Left/Play.pressed.connect(_on_play_pressed)
 	category_list.item_selected.connect(_on_category_selected)
 	asset_list.item_selected.connect(_on_asset_selected)
 	state_option.item_selected.connect(_on_state_selected)
@@ -248,6 +249,11 @@ func _read_meta(dir_path: String) -> Dictionary:
 			if idx > 0:
 				meta[line.substr(0, idx).strip_edges()] = line.substr(idx + 1).strip_edges()
 	return meta
+
+
+## 切到试玩场景（WASD 控制蟑螂），Esc 会切回来
+func _on_play_pressed() -> void:
+	get_tree().change_scene_to_file("res://play.tscn")
 
 
 func _list_pngs(dir_path: String) -> Array:

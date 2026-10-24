@@ -36,6 +36,8 @@ assets/
 
 用 Godot 4.6 打开 `preview/project.godot`，按 F5。左边选分类和素材，右边看图和播放动画；素材改完点「重新扫描」即可，不需要复制素材。
 
+左下角的「试玩（WASD 控制蟑螂）」会进一个可操作的小房间：WASD / 方向键移动，Esc 返回。预制体在 `preview/prefabs/`。
+
 细节见 [preview/README.md](preview/README.md)。
 
 ## 三条核心约定

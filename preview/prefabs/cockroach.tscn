@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://prefabs/cockroach.gd" id="1_roach"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_body"]
+radius = 8.0
+height = 34.0
+
+[node name="Cockroach" type="CharacterBody2D"]
+motion_mode = 1
+script = ExtResource("1_roach")
+
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
+
+[node name="Body" type="CollisionShape2D" parent="."]
+position = Vector2(0, -2)
+shape = SubResource("CapsuleShape2D_body")
