@@ -1,0 +1,11 @@
+# Godot 导入缓存与临时文件
+.godot/
+*.translation
+
+# Python 缓存
+__pycache__/
+*.pyc
+
+# 系统文件
+Thumbs.db
+.DS_Store
