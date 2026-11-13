@@ -2,6 +2,9 @@
 .godot/
 *.translation
 
+# Blender 自动备份
+*.blend1
+
 # Python 缓存
 __pycache__/
 *.pyc

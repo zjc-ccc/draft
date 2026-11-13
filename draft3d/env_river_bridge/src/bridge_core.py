@@ -15,7 +15,8 @@ SRC = os.path.join(ROOT, "src")
 OUT = os.path.join(ROOT, "export")
 
 TOP_Z = 0.30            # 台面高度（马路 / 人行道顶面）
-HALF = 6.0              # 底座半宽
+HALF_X = 8.00           # 底座 X 向半宽（16 宽，沿路方向延长）
+HALF = 6.00             # 底座 Y 向半宽（12 深）
 
 # ---- 横向（Y）分区：河道居中，两侧依次为滨河步道 / 马路 / 人行道 / 绿化带
 RIVER_HALF = 1.40       # 河道半宽
@@ -33,6 +34,15 @@ DECK_W = 1.70           # 桥面宽（X）
 DECK_HALF = DECK_W / 2
 DECK_END = 4.36         # 桥面在 Y 向的端点（正好压在人行道内缘）
 DECK_BOT = DECK_Z - 0.14
+
+# ---- 外卖店（S 侧 / Blender -Y 端，压在人行道与绿化带上）
+SHOP_X0, SHOP_X1 = -7.30, -4.50    # 沿 X 的店面区间
+SHOP_BACK_Y, SHOP_FRONT_Y = -6.00, -5.06   # 店面进深
+SHOP_H = 1.06                       # 店面净高（约 3.1 m）
+SHOP_TOP = TOP_Z + SHOP_H
+SHOP_PICK_X, SHOP_PICK_Y = -4.98, -4.62    # 取餐光圈中心（取餐窗口前）
+# ---- 收货点（N 侧人行道，N 端楼梯落地后向东）
+DROP_X, DROP_Y = 5.55, 4.86
 
 
 # ---------------------------------------------------------------- 场景 / 集合
@@ -431,7 +441,7 @@ def build_lights():
 
 
 # ---------------------------------------------------------------- 相机
-def setup_camera(lens=48.0, dist=21.6, target=(0.0, 0.0, 0.52),
+def setup_camera(lens=40.0, dist=26.2, target=(0.0, 0.0, 0.52),
                  direction=(0.64, 0.62, 0.46)):
     scene = bpy.context.scene
     cam_data = bpy.data.cameras.new("Camera")

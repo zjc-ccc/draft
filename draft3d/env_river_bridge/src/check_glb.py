@@ -45,11 +45,11 @@ fill.location = (-8, 10, 9)
 fill.rotation_euler = (Vector((0, 0, 0.5)) - fill.location).to_track_quat('-Z', 'Y').to_euler()
 
 cam_data = bpy.data.cameras.new("Cam")
-cam_data.lens = 48
+cam_data.lens = 40
 cam = bpy.data.objects.new("Cam", cam_data)
 scene.collection.objects.link(cam)
 tgt = Vector((0.0, 0.0, 0.52))
-cam.location = tgt + Vector((0.64, 0.62, 0.46)).normalized() * 21.6
+cam.location = tgt + Vector((0.64, 0.62, 0.46)).normalized() * 26.2
 cam.rotation_euler = (tgt - cam.location).to_track_quat('-Z', 'Y').to_euler()
 scene.camera = cam
 

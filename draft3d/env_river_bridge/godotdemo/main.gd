@@ -11,6 +11,7 @@ func _ready() -> void:
 	_add_model()
 	_add_player()
 	_add_camera()
+	_add_delivery()
 	_add_ui()
 	if "--shot" in OS.get_cmdline_user_args():
 		_capture()
@@ -65,6 +66,7 @@ func _add_model() -> void:
 
 
 var _player: Node3D
+var _cam: Camera3D
 var _status: Label
 
 
@@ -77,12 +79,22 @@ func _add_player() -> void:
 
 
 func _add_camera() -> void:
-	var cam := Camera3D.new()
-	cam.name = "Camera3D"
-	cam.set_script(load("res://follow_camera.gd"))
-	cam.set("target_path", NodePath("../Player"))
-	add_child(cam)
-	cam.current = true
+	_cam = Camera3D.new()
+	_cam.name = "Camera3D"
+	_cam.set_script(load("res://follow_camera.gd"))
+	_cam.set("target_path", NodePath("../Player"))
+	add_child(_cam)
+	_cam.current = true
+
+
+func _add_delivery() -> void:
+	# 取餐 / 交付 / 计时 / 顾客，逻辑见 delivery.gd
+	if has_node("Delivery"):
+		return
+	var d := Node3D.new()
+	d.name = "Delivery"
+	d.set_script(load("res://delivery.gd"))
+	add_child(d)
 
 
 func _add_ui() -> void:
@@ -90,7 +102,7 @@ func _add_ui() -> void:
 	layer.name = "UI"
 	add_child(layer)
 	var hint := Label.new()
-	hint.text = "W / S  Move   ·   A / D  Turn   ·   Shift  Sprint   ·   Space  Jump   ·   F / E / 左键  Wave"
+	hint.text = "W / S  Move   ·   A / D  Turn   ·   Shift  Sprint   ·   Space  Jump   ·   F  取餐 / 交付   ·   E / 左键  Wave   ·   V  第一/第三人称"
 	hint.position = Vector2(26, 20)
 	hint.add_theme_color_override("font_color", Color(1, 1, 1, 0.86))
 	hint.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.45))
@@ -98,7 +110,7 @@ func _add_ui() -> void:
 	hint.add_theme_font_size_override("font_size", 18)
 	layer.add_child(hint)
 
-	# 当前动作名，用于确认输入是否真的进来了
+	# 当前动作名与视角，用于确认输入是否真的进来了
 	_status = Label.new()
 	_status.text = "anim: -"
 	_status.position = Vector2(26, 50)
@@ -110,8 +122,15 @@ func _add_ui() -> void:
 
 
 func _process(_delta: float) -> void:
-	if _status and _player:
-		_status.text = "anim: " + str(_player.call("current_anim"))
+	if _status == null:
+		return
+	var anim_text := "-"
+	if _player:
+		anim_text = str(_player.call("current_anim"))
+	var view_text := "3P"
+	if _cam:
+		view_text = str(_cam.call("mode_text"))
+	_status.text = "anim: %s    view: %s" % [anim_text, view_text]
 
 
 func _capture() -> void:

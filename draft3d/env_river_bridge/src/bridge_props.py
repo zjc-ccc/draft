@@ -6,8 +6,9 @@
 
 import math
 
-from bridge_core import (TOP_Z, HALF, PROM_Y0, PROM_Y1, ROAD_Y0, ROAD_Y1,
+from bridge_core import (TOP_Z, HALF_X, PROM_Y0, PROM_Y1, ROAD_Y0, ROAD_Y1,
                          SIDE_Y0, SIDE_Y1, BELT_Y0, BELT_Y1,
+                         SHOP_X0, SHOP_X1,
                          box, cyl, sphere, rect, slab, tube, poly,
                          toon_mat, emit_mat, text_mesh, stage, stage_group)
 
@@ -49,7 +50,12 @@ def mats():
 
 
 # ---------------------------------------------------------------- 行道树
-TREE_X = (-5.30, -3.85, -2.40, -0.95, 0.95, 2.40, 3.85, 5.30)
+TREE_X = (-6.90, -5.30, -3.85, -2.40, -0.95, 0.95, 2.40, 3.85, 5.30, 6.90)
+
+
+def in_shop_zone(x, sy):
+    """外卖店占位区：S 侧（sy < 0）该 X 区间内不再摆绿化与街具"""
+    return sy < 0 and SHOP_X0 - 0.15 <= x <= SHOP_X1 + 0.15
 
 
 def tree(name, x, y, scale, col, tone=0):
@@ -74,6 +80,8 @@ def build_trees(col):
     obs = []
     for sy in (1, -1):
         for i, x in enumerate(TREE_X):
+            if in_shop_zone(x, sy):
+                continue
             jitter = 0.06 if (i + (sy > 0)) % 2 else -0.04
             obs += tree("Tree%s%02d" % ("N" if sy > 0 else "S", i),
                         x + jitter, sy * 5.70, 1.0 if i % 3 else 1.12, col, i)
@@ -86,13 +94,17 @@ def build_hedges(col):
     for sy in (1, -1):
         tag = "N" if sy > 0 else "S"
         y = sy * 5.55
-        x = -HALF + 0.30
+        x = -HALF_X + 0.30
         i = 0
-        while x < HALF - 0.40:
+        while x < HALF_X - 0.40:
+            ln = 0.62
+            if in_shop_zone(x + ln / 2, sy):
+                x += ln + 0.34
+                i += 1
+                continue
             if 0.62 <= abs(x) <= 1.35 and i % 2 == 0:
                 x += 0.36
                 continue
-            ln = 0.62
             obs.append(box("Hedge_%s%02d" % (tag, i), (ln, 0.34, 0.26),
                            (x + ln / 2, y, BELT_TOP + 0.13),
                            toon_mat(HEDGE, "#4a7f3c"), col=col))
@@ -107,12 +119,14 @@ def build_hedges(col):
 def build_flowers(col):
     mats()
     obs = []
-    clusters = [(-5.05, 5.82), (-3.20, 5.86), (-1.60, 5.84), (0.10, 5.86),
-                (1.90, 5.84), (3.40, 5.86), (5.05, 5.82)]
+    clusters = [(-6.85, 5.82), (-5.05, 5.86), (-3.20, 5.86), (-1.60, 5.84), (0.10, 5.86),
+                (1.90, 5.84), (3.40, 5.86), (5.05, 5.82), (6.85, 5.84)]
     fmats = [toon_mat(FLOWER_R, "#e0574f"), toon_mat(FLOWER_Y, "#f2c64d"),
              toon_mat(FLOWER_P, "#e98aa8")]
     for sy in (1, -1):
         for i, (x, yb) in enumerate(clusters):
+            if in_shop_zone(x, sy):
+                continue
             y = sy * yb
             obs.append(rect("Flower_Soil%s%d" % ("N" if sy > 0 else "S", i), x, y,
                             0.46, 0.30, BELT_TOP + 0.012,
@@ -130,7 +144,8 @@ def build_flowers(col):
 # ---------------------------------------------------------------- 路灯
 def build_lamps(col):
     obs = []
-    spots = [(-3.90, 4.86), (3.90, 4.86), (-3.90, -4.86), (3.90, -4.86),
+    spots = [(-6.90, 4.86), (-3.90, 4.86), (3.90, 4.86), (6.90, 4.86),
+             (-3.90, -4.86), (3.90, -4.86), (6.90, -4.86),
              (-0.40, 5.10), (-0.40, -5.10)]
     for i, (x, y) in enumerate(spots):
         sy = 1 if y > 0 else -1
@@ -166,7 +181,7 @@ def bench(name, x, y, col, face=1):
 def build_furniture(col):
     obs = []
     for sy in (1, -1):
-        for i, x in enumerate((-4.40, -2.60, 2.60, 4.40)):
+        for i, x in enumerate((-6.20, -4.40, -2.60, 2.60, 4.40, 6.20)):
             obs += bench("Bench%s%d" % ("N" if sy > 0 else "S", i), x,
                          sy * 1.72, col, face=-sy)
     # 垃圾桶
@@ -181,8 +196,8 @@ def build_furniture(col):
 # ---------------------------------------------------------------- 路牌 / 系船柱
 def build_signs(col):
     obs = []
-    labels = [("滨河路", 4.95, 4.52), ("望江桥", -4.95, 4.52),
-              ("滨河路", 4.95, -4.52), ("望江桥", -4.95, -4.52)]
+    labels = [("滨河路", 7.05, 4.52), ("望江桥", -4.95, 4.52),
+              ("滨河路", 4.95, -4.52), ("望江桥", -3.25, -4.52)]
     for i, (body, x, y) in enumerate(labels):
         sy = 1 if y > 0 else -1
         obs.append(cyl("Sign_Post%d" % i, 0.024, 0.024, 0.72,
@@ -200,8 +215,8 @@ def build_signs(col):
 def build_mooring(col):
     obs = []
     for sy in (1, -1):
-        x = -HALF + 0.55
-        while x < HALF - 0.4:
+        x = -HALF_X + 0.55
+        while x < HALF_X - 0.4:
             if abs(x) > 1.25:
                 obs.append(cyl("Mooring%s%s" % ("N" if sy > 0 else "S", int(x * 10)),
                                0.035, 0.028, 0.30, (x, sy * 1.50, PROM_TOP + 0.15),

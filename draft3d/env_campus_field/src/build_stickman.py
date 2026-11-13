@@ -77,17 +77,17 @@ def build_stickman(col):
     o.append(limb("HipBar", (-hip_x, 0, hip_z), (hip_x, 0, hip_z), H * 0.022, M_WHITE, col))
     # 关节球
     for s in (-1, 1):
-        o.append(core.sphere("ShoulderBall%d" % s, H * 0.026, (s * sh_x, 0, sh_z), M_WHITE, seg=14, col=col))
+        o.append(core.sphere("ShoulderBall%d" % s, H * 0.030, (s * sh_x, 0, sh_z), M_WHITE, seg=14, col=col))
         o.append(core.sphere("HipBall%d" % s, H * 0.026, (s * hip_x, 0, hip_z), M_WHITE, seg=14, col=col))
-        o.append(core.sphere("ElbowBall%d" % s, H * 0.022, (s * elbow[0], 0, elbow[1]), M_WHITE, seg=12, col=col))
+        o.append(core.sphere("ElbowBall%d" % s, H * 0.027, (s * elbow[0], 0, elbow[1]), M_WHITE, seg=12, col=col))
         o.append(core.sphere("KneeBall%d" % s, H * 0.024, (s * knee_x, 0, knee_z), M_WHITE, seg=12, col=col))
         o.append(core.sphere("AnkleBall%d" % s, H * 0.020, (s * ankle_x, 0, ankle_z), M_WHITE, seg=10, col=col))
-        # 手臂：肩 -> 肘 -> 手
+        # 手臂：肩 -> 肘 -> 手（加粗版）
         o.append(limb("UpperArm%d" % s, (s * sh_x, 0, sh_z), (s * elbow[0], 0, elbow[1]),
-                      H * 0.019, M_WHITE, col))
+                      H * 0.026, M_WHITE, col))
         o.append(limb("ForeArm%d" % s, (s * elbow[0], 0, elbow[1]), (s * hand[0], 0, hand[1]),
-                      H * 0.017, M_WHITE, col))
-        o.append(core.sphere("Hand%d" % s, H * 0.023, (s * hand[0], 0, hand[1]), M_WHITE, seg=12, col=col))
+                      H * 0.024, M_WHITE, col))
+        o.append(core.sphere("Hand%d" % s, H * 0.031, (s * hand[0], 0, hand[1]), M_WHITE, seg=12, col=col))
         # 腿：髋 -> 膝 -> 踝
         o.append(limb("Thigh%d" % s, (s * hip_x, 0, hip_z), (s * knee_x, 0, knee_z),
                       H * 0.025, M_WHITE, col))

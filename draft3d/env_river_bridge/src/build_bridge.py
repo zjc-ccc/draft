@@ -25,6 +25,7 @@ core.wipe()
 import bridge_ground as ground
 import bridge_bridge as bridge
 import bridge_props as props
+import bridge_shop as shop
 import export_glb
 
 
@@ -34,6 +35,7 @@ def main():
     c_road = core.new_collection("Road")
     c_bridge = core.new_collection("Bridge")
     c_green = core.new_collection("Greenery")
+    c_shop = core.new_collection("Shop")
 
     ground.build_base(c_base)
     ground.build_river(c_river)
@@ -53,6 +55,8 @@ def main():
     props.build_furniture(c_green)
     props.build_signs(c_green)
     props.build_mooring(c_green)
+
+    shop.build_shop(c_shop)
 
     core.build_lights()
     core.setup_camera()
